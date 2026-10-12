@@ -63,15 +63,19 @@ class ShopBackClient:
     def __exit__(self, *_args: object) -> None:
         self.close()
 
-    def _post(self, endpoint: str, payload: dict[str, Any], *, money_moving: bool = False) -> dict[str, Any]:
+    def _post(
+        self, endpoint: str, payload: dict[str, Any], *, money_moving: bool = False
+    ) -> dict[str, Any]:
         try:
             response = self._http.post(
-                endpoint, content=json.dumps(payload, separators=(",", ":")),
+                endpoint,
+                content=json.dumps(payload, separators=(",", ":")),
             )
         except httpx.RequestError as exc:
             if money_moving:
                 raise WithdrawalOutcomeUnknown(
-                    "Withdrawal transport failed; outcome unknown. Check your account before retrying."
+                    "Withdrawal transport failed; outcome unknown. "
+                    "Check your account before retrying."
                 ) from exc
             raise ApiError("Network request failed") from exc
         if response.status_code in (401, 403):
@@ -104,7 +108,8 @@ class ShopBackClient:
         if decimal_amount != decimal_amount.to_integral_value():
             raise ValueError("Amount must be an integer in TWD")
         payload: dict[str, Any] = {
-            "payee": {"_id": payee_id}, "form": {"amount": int(decimal_amount)}
+            "payee": {"_id": payee_id},
+            "form": {"amount": int(decimal_amount)},
         }
         if otp_request_id is not None:
             if not otp_request_id.strip():
@@ -121,9 +126,7 @@ class ShopBackClient:
         session_id = session.get("session_id")
         if not isinstance(session_id, str) or not session_id:
             raise ApiError("OTP session response did not contain session_id")
-        sent = self._post(
-            "/api/auth/v2/send-otp", {"session_id": session_id, "channel": "sms"}
-        )
+        sent = self._post("/api/auth/v2/send-otp", {"session_id": session_id, "channel": "sms"})
         return {**sent, "session_id": session_id}
 
     def verify_otp(self, session_id: str, request_id: str, otp: str) -> dict[str, Any]:

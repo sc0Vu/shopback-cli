@@ -119,7 +119,9 @@ def browser_login() -> list[dict[str, Any]]:
     try:
         from playwright.sync_api import sync_playwright
     except ImportError as exc:
-        raise ShopBackError("Install browser support: pip install 'shopback-tw-cli[browser]'") from exc
+        raise ShopBackError(
+            "Install browser support: pip install 'shopback-tw-cli[browser]'"
+        ) from exc
 
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(channel="chrome", headless=False)

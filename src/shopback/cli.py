@@ -18,7 +18,9 @@ app.add_typer(otp_app, name="otp")
 
 def _print_response(value: dict[str, Any]) -> None:
     # API responses might contain secrets. Do not dump unfiltered responses.
-    safe = {k: v for k, v in value.items() if k in {"isOtpRequired", "status", "success", "message"}}
+    safe = {
+        k: v for k, v in value.items() if k in {"isOtpRequired", "status", "success", "message"}
+    }
     typer.echo(json.dumps(safe, ensure_ascii=False, indent=2))
     if not safe:
         typer.echo("API response received (details omitted to protect credentials).")
