@@ -83,7 +83,7 @@ def withdraw(
         code = getpass("SMS OTP: ")
         verification = client.verify_otp(session_id, request_id, code)
         # Response schema is unverified. Never treat an unknown result as verified.
-        if verification.get("success") is not True:
+        if verification.get("status") != "OK":
             typer.echo("OTP verification not explicitly confirmed by API. Stopping safely.")
             _print_response(verification)
             raise typer.Exit(code=1)
